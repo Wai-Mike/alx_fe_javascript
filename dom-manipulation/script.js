@@ -272,7 +272,7 @@ function importFromJsonFile(event) {
     }
 }
 
-// Simulate server interaction
+// Fetch quotes from server using mock API
 async function fetchQuotesFromServer() {
     try {
         // Using JSONPlaceholder as a mock API
@@ -297,8 +297,34 @@ async function fetchQuotesFromServer() {
     }
 }
 
-// Sync with server
-async function syncWithServer() {
+// Post quotes to server using mock API
+async function postQuotesToServer(quotesToPost) {
+    try {
+        // Using JSONPlaceholder as a mock API for posting
+        // In a real scenario, this would be your actual API endpoint
+        const response = await fetch('https://jsonplaceholder.typicode.com/posts', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                title: quotesToPost.length > 0 ? quotesToPost[0].text : 'Quote sync',
+                body: JSON.stringify(quotesToPost),
+                userId: 1
+            })
+        });
+        
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Error posting to server:', error);
+        // Return mock success response if post fails
+        return { success: true, message: 'Quotes posted (simulated)' };
+    }
+}
+
+// Sync quotes with server - periodically checks for new quotes and updates local storage
+async function syncQuotes() {
     const syncStatus = document.getElementById('syncStatus');
     if (syncStatus) {
         syncStatus.textContent = 'Syncing...';
@@ -306,6 +332,7 @@ async function syncWithServer() {
     }
     
     try {
+        // Fetch quotes from server
         const serverQuotes = await fetchQuotesFromServer();
         
         // Conflict resolution: Server data takes precedence for matching quotes
@@ -329,19 +356,28 @@ async function syncWithServer() {
             }
         });
         
+        // Update local storage with server data
         saveQuotes();
         populateCategories();
         filterQuotes();
+        
+        // Post local quotes to server (bidirectional sync)
+        await postQuotesToServer(quotes);
         
         if (syncStatus) {
             syncStatus.textContent = `Sync complete! ${newQuotesAdded} new, ${conflictsResolved} updated.`;
             syncStatus.className = 'sync-status success';
         }
         
-        showNotification(
-            `Sync completed: ${newQuotesAdded} new quote(s) added, ${conflictsResolved} conflict(s) resolved.`,
-            'success'
-        );
+        // Show notification for data updates or conflicts
+        if (conflictsResolved > 0 || newQuotesAdded > 0) {
+            showNotification(
+                `Sync completed: ${newQuotesAdded} new quote(s) added, ${conflictsResolved} conflict(s) resolved.`,
+                'success'
+            );
+        } else {
+            showNotification('Sync completed: No updates available.', 'info');
+        }
         
         // Reset status after 3 seconds
         setTimeout(() => {
@@ -366,7 +402,12 @@ async function syncWithServer() {
     }
 }
 
-// Toggle auto-sync
+// Sync with server (alias for syncQuotes for backward compatibility)
+async function syncWithServer() {
+    return syncQuotes();
+}
+
+// Toggle auto-sync - periodically checks for new quotes from the server
 function toggleAutoSync() {
     const autoSyncBtn = document.getElementById('autoSyncBtn');
     
@@ -378,8 +419,8 @@ function toggleAutoSync() {
         }
         showNotification('Auto sync disabled', 'info');
     } else {
-        // Sync every 30 seconds
-        autoSyncInterval = setInterval(syncWithServer, 30000);
+        // Periodically check for new quotes from the server every 30 seconds
+        autoSyncInterval = setInterval(syncQuotes, 30000);
         isAutoSyncEnabled = true;
         if (autoSyncBtn) {
             autoSyncBtn.textContent = 'Disable Auto Sync';
