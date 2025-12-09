@@ -46,16 +46,17 @@ function loadQuotesFromStorage() {
 function saveQuotes() {
     localStorage.setItem('quotes', JSON.stringify(quotes));
     localStorage.setItem('lastFilter', currentFilter);
+    localStorage.setItem('selectedCategory', currentFilter);
 }
 
 // Restore last selected filter
 function restoreLastFilter() {
-    const lastFilter = localStorage.getItem('lastFilter');
-    if (lastFilter) {
-        currentFilter = lastFilter;
+    const selectedCategory = localStorage.getItem('selectedCategory') || localStorage.getItem('lastFilter');
+    if (selectedCategory) {
+        currentFilter = selectedCategory;
         const filterSelect = document.getElementById('categoryFilter');
         if (filterSelect) {
-            filterSelect.value = currentFilter;
+            filterSelect.value = selectedCategory;
         }
         filterQuotes();
     }
@@ -185,14 +186,17 @@ function filterQuotes() {
     const categoryFilter = document.getElementById('categoryFilter');
     if (!categoryFilter) return;
     
-    currentFilter = categoryFilter.value;
+    const selectedCategory = categoryFilter.value;
+    currentFilter = selectedCategory;
     
-    if (currentFilter === 'all') {
+    if (selectedCategory === 'all') {
         filteredQuotes = [...quotes];
     } else {
-        filteredQuotes = quotes.filter(quote => quote.category === currentFilter);
+        filteredQuotes = quotes.filter(quote => quote.category === selectedCategory);
     }
     
+    // Save the selected category to local storage
+    localStorage.setItem('selectedCategory', selectedCategory);
     saveQuotes();
     
     // Show a random quote from filtered results
