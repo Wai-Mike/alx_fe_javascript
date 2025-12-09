@@ -364,6 +364,9 @@ async function syncQuotes() {
         // Post local quotes to server (bidirectional sync)
         await postQuotesToServer(quotes);
         
+        // Show alert for successful sync
+        alert("Quotes synced with server!");
+        
         if (syncStatus) {
             syncStatus.textContent = `Sync complete! ${newQuotesAdded} new, ${conflictsResolved} updated.`;
             syncStatus.className = 'sync-status success';
