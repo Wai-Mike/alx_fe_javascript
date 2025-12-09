@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dynamic Quote Generator</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Dynamic Quote Generator</h1>
+        
+        <!-- Category Filter Section -->
+        <div class="filter-section">
+            <label for="categoryFilter">Filter by Category:</label>
+            <select id="categoryFilter" onchange="filterQuotes()">
+                <option value="all">All Categories</option>
+            </select>
+        </div>
+
+        <!-- Quote Display Section -->
+        <div id="quoteDisplay" class="quote-display">
+            <p class="quote-text">Click "Show New Quote" to get started!</p>
+            <p class="quote-category"></p>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="button-group">
+            <button id="newQuote" onclick="showRandomQuote()">Show New Quote</button>
+        </div>
+
+        <!-- Add Quote Form Section -->
+        <div id="addQuoteForm" class="form-section">
+            <h2>Add New Quote</h2>
+            <div class="form-group">
+                <input id="newQuoteText" type="text" placeholder="Enter a new quote" />
+                <input id="newQuoteCategory" type="text" placeholder="Enter quote category" />
+                <button onclick="addQuote()">Add Quote</button>
+            </div>
+        </div>
+
+        <!-- Import/Export Section -->
+        <div class="import-export-section">
+            <h2>Import / Export Quotes</h2>
+            <div class="button-group">
+                <button onclick="exportToJson()">Export to JSON</button>
+                <label for="importFile" class="file-label">
+                    Import from JSON
+                    <input type="file" id="importFile" accept=".json" onchange="importFromJsonFile(event)" style="display: none;" />
+                </label>
+            </div>
+        </div>
+
+        <!-- Sync Section -->
+        <div class="sync-section">
+            <h2>Server Sync</h2>
+            <div class="button-group">
+                <button onclick="syncWithServer()">Sync Now</button>
+                <button onclick="toggleAutoSync()" id="autoSyncBtn">Enable Auto Sync</button>
+            </div>
+            <div id="syncStatus" class="sync-status"></div>
+        </div>
+
+        <!-- Notification Area -->
+        <div id="notificationArea" class="notification-area"></div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
+
